@@ -1,5 +1,9 @@
-from typing import Dict
+from typing import Dict, List
+
+from repository import repository
 
 
-def auth(login: str, password: str) -> Dict[str: str]:
-    pass
+def get_coursers() -> List:
+    res = repository.get_coursers()
+    list_courses = [i[0] for i in res]
+    return list_courses

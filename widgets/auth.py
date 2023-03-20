@@ -1,6 +1,6 @@
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget, QMainWindow, QDialog, QLabel
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget, QMainWindow, QDialog, QLabel, QHBoxLayout
 
 from widgets.adminPanel import AdminPanel
 
@@ -13,8 +13,9 @@ class Auth(QMainWindow):
         self.setStyleSheet("background-color: #141414")
 
         self._title = QLabel("Добро пожаловать в Деканат.Плюс")
-        self._title.setStyleSheet("font-size: 30px; font-weight: semi-bold; color: #FFFFFF; margin: 0 0 50px 0; "
+        self._title.setStyleSheet("font-size: 30px; font-weight: semi-bold; color: #FFFFFF; "
                                   "text-align: center;")
+        self._title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self._login_input = QLineEdit()
         self._login_input.setFixedSize(350, 50)
@@ -35,29 +36,34 @@ class Auth(QMainWindow):
         self._button.setFixedSize(350, 50)
         self._button.clicked.connect(self._check_auth_data)
         self._button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
-                                   "font-size: 16px; color: #FFFFFF")
+                                   "font-size: 16px; color: #FFFFFF;")
+
+        title_l = QHBoxLayout()
+        title_l.addWidget(self._title)
 
         form = QVBoxLayout()
         form.addStretch()
-        form.addWidget(self._title, alignment=Qt.AlignmentFlag.AlignHCenter)
-        form.addWidget(self._login_input, alignment=Qt.AlignmentFlag.AlignHCenter)
-        form.addWidget(self._password_input, alignment=Qt.AlignmentFlag.AlignHCenter)
-        form.addWidget(self._button, alignment=Qt.AlignmentFlag.AlignHCenter)
-        form.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        form.addWidget(self._login_input)
+        form.addSpacing(5)
+        form.addWidget(self._password_input)
+        form.addSpacing(20)
+        form.addWidget(self._button)
         form.addStretch()
+        form.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        login = QVBoxLayout()
+        login.addStretch()
+        login.addWidget(self._title)
+        login.addLayout(form)
+        login.addStretch()
 
         container = QWidget()
-        container.setLayout(form)
+        container.setLayout(login)
 
         self.setCentralWidget(container)
         self.showMaximized()
 
     def _check_auth_data(self):
-        # dlg = QDialog(self)
-        # dlg.setWindowIcon(QtGui.QIcon("assets/error.ico"))
-        # dlg.setWindowTitle("Ошибка")
-        # dlg.exec()
-
         self.admin_panel = AdminPanel()
         self.admin_panel.show()
         self.close()

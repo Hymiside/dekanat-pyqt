@@ -1,7 +1,7 @@
 import sys
 
 from PyQt6.QtWidgets import QApplication
-from widgets import auth, adminPanel
+from widgets import auth
 
 
 if __name__ == '__main__':
@@ -19,6 +19,4 @@ if __name__ == '__main__':
     """)
 
     auth_window = auth.Auth()
-    auth_window.show()
-
-    sys.exit(app.exec())
+    app.exec()
