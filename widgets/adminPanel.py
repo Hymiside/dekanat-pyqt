@@ -1,10 +1,12 @@
+from typing import List
+
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QLineEdit, QMainWindow, QWidget, QDialog, QPushButton, QLabel, QHBoxLayout, QVBoxLayout, \
-    QCheckBox, QGroupBox, QRadioButton, QGridLayout, QListView, QFontComboBox, QComboBox
+from PyQt6.QtWidgets import QLineEdit, QMainWindow, QWidget, QPushButton, QLabel, QHBoxLayout, QVBoxLayout, \
+    QRadioButton, QScrollArea
 
-
-from widgets.dialogWindows import createStudent
+from service import service
+from widgets.dialogWindows import createStudent, cardStudent
 
 
 class AdminPanel(QMainWindow):
@@ -14,110 +16,198 @@ class AdminPanel(QMainWindow):
         self.setWindowIcon(QtGui.QIcon("assets/main.ico"))
         self.setStyleSheet("background-color: #141414")
 
-        self._title = QLabel("Панель администратора")
-        self._title.setStyleSheet("font-size: 30px; font-weight: semi-bold; color: #FFFFFF; "
-                                  "text-align: center;")
-        self._title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        title_widget = QLabel("Панель администратора")
+        title_widget.setStyleSheet("font-size: 30px; font-weight: semi-bold; color: #FFFFFF; "
+                                   "text-align: center;")
+        title_widget.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        self._add_teacher_button = QPushButton("Добавить преподавателя")
-        self._add_teacher_button.setFixedSize(350, 40)
-        self._add_teacher_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
-                                               "font-size: 16px; color: #FFFFFF")
+        add_button_student = QPushButton("Добавить студента")
+        add_button_student.setFixedSize(225, 40)
+        add_button_student.clicked.connect(self.create_student)
+        add_button_student.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
+                                         "font-size: 16px; color: #FFFFFF")
 
-        self._add_student_button = QPushButton("Добавить студента")
-        self._add_student_button.setFixedSize(350, 40)
-        self._add_student_button.clicked.connect(self.create_student)
-        self._add_student_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
-                                               "font-size: 16px; color: #FFFFFF")
+        download_button_student = QPushButton("Скачать данные студентов")
+        download_button_student.setFixedSize(240, 40)
+        download_button_student.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
+                                              "font-size: 16px; color: #FFFFFF")
 
-        self._search = QLineEdit()
-        self._search.setFixedSize(700, 60)
-        self._search.setContentsMargins(0, 20, 0, 0)
-        self._search.setPlaceholderText("Вводите с фамилии")
-        self._search.setClearButtonEnabled(True)
-        self._search.setStyleSheet("color: #FFFFFF; border: 1px solid #FFFFFF; border-radius: 5px; font-size: 14px; "
-                                   "padding: 0 0 0 10px;")
+        add_button_teacher = QPushButton("Добавить преподавателя")
+        add_button_teacher.setFixedSize(225, 40)
+        add_button_teacher.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
+                                         "font-size: 16px; color: #FFFFFF")
 
-        self._choice_button_all = QRadioButton("Все")
-        self._choice_button_all.setChecked(True)
-        self._choice_button_students = QRadioButton("Студенты")
-        self._choice_button_teachers = QRadioButton("Преподаватели")
+        add_buttons_layout = QHBoxLayout()
+        add_buttons_layout.addStretch()
+        add_buttons_layout.addWidget(add_button_student)
+        add_buttons_layout.addWidget(download_button_student)
+        add_buttons_layout.addWidget(add_button_teacher)
+        add_buttons_layout.setContentsMargins(0, 35, 0, 0)
+        add_buttons_layout.addStretch()
 
-        lists = [[23,  "Петров Петр Петрович", "Преподаватель"], [24, "Ардаков Игорь Герасимович", "Студент"], [25, "Донченко Иван Андреевич", "Студент"], [26, "Бирюков Евгений Евгеньевич", "Преподаватель"], [27, "Иванов Иван Иванович", "Преподаватель"], [23,  "Петров Петр Петрович", "Преподаватель"], [24, "Ардаков Игорь Герасимович", "Студент"], [25, "Донченко Иван Андреевич", "Студент"], [26, "Бирюков Евгений Евгеньевич", "Преподаватель"], [27, "Иванов Иван Иванович", "Преподаватель"], [23,  "Петров Петр Петрович", "Преподаватель"], [24, "Ардаков Игорь Герасимович", "Студент"], [25, "Донченко Иван Андреевич", "Студент"], [26, "Бирюков Евгений Евгеньевич", "Преподаватель"], [27, "Иванов Иван Иванович", "Преподаватель"]]
-        list_data_users = QVBoxLayout()
-        list_data_users.setContentsMargins(0, 60, 0, 0)
 
-        col_button = QVBoxLayout()
-        col_fullname = QVBoxLayout()
-        col_role = QVBoxLayout()
-        for i in lists:
-            data_user_l = QHBoxLayout()
-            button_delete = QPushButton("Подробнее")
-            button_delete.clicked.connect(self.open_card(i[0]))
-            button_delete.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; font-size: 13px; "
-                                        "color: #FFFFFF; width: 120px; height: 30px; margin-left: 150px;")
+        search_line_user = QLineEdit()
+        search_line_user.setFixedSize(700, 60)
+        search_line_user.setContentsMargins(0, 20, 0, 0)
+        search_line_user.setClearButtonEnabled(True)
+        search_line_user.setPlaceholderText("Введите фамилию")
+        search_line_user.setStyleSheet("color: #FFFFFF; border: 1px solid #FFFFFF; border-radius: 5px; "
+                                       "font-size: 14px; padding: 0 0 0 10px;")
 
-            fullname = QLabel(i[1])
-            fullname.setStyleSheet("font-size: 15px; color: #FFFFFF;")
 
-            role = QLabel(i[2])
-            role.setStyleSheet("font-size: 14px; color: #FFFFFF; margin-left: 80px; font-style: italic;")
+        self.radio_button_student = QRadioButton("Студенты")
+        self.radio_button_student.setChecked(True)
+        self.radio_button_student.toggled.connect(lambda: self.change_view(self.radio_button_student))
+        self.radio_button_teacher = QRadioButton("Преподаватели")
+        self.radio_button_teacher.toggled.connect(lambda: self.change_view(self.radio_button_teacher))
 
-            col_button.addWidget(button_delete)
-            col_fullname.addWidget(fullname)
-            col_role.addWidget(role)
 
-            data_user_l.addStretch()
-            data_user_l.addLayout(col_fullname)
-            data_user_l.addLayout(col_role)
-            data_user_l.addLayout(col_button)
-            data_user_l.addStretch()
-            data_user_l.setSpacing(15)
-            list_data_users.addLayout(data_user_l)
-            list_data_users.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        radio_buttons_layout = QHBoxLayout()
+        radio_buttons_layout.addStretch()
+        radio_buttons_layout.addWidget(self.radio_button_student)
+        radio_buttons_layout.addWidget(self.radio_button_teacher)
+        radio_buttons_layout.addStretch()
+        radio_buttons_layout.setContentsMargins(0, 10, 0, 0)
 
-        choice_l = QHBoxLayout()
-        choice_l.addStretch()
-        choice_l.addWidget(self._choice_button_all)
-        choice_l.addWidget(self._choice_button_students)
-        choice_l.addWidget(self._choice_button_teachers)
-        choice_l.addStretch()
-        choice_l.setContentsMargins(0, 10, 0, 0)
 
-        buttons_l = QHBoxLayout()
-        buttons_l.addStretch()
-        buttons_l.addWidget(self._add_student_button)
-        buttons_l.addWidget(self._add_teacher_button)
-        buttons_l.setContentsMargins(0, 35, 0, 0)
-        buttons_l.addStretch()
+        users_data = service.get_all_users_students()
+        # users_data = []
+        data_all_users_layout = QVBoxLayout()
+        data_all_users_layout.setContentsMargins(0, 60, 0, 80)
 
-        header = QVBoxLayout()
-        header.addWidget(self._title)
-        header.addLayout(buttons_l)
-        header.addWidget(self._search, alignment=Qt.AlignmentFlag.AlignHCenter)
-        header.addLayout(choice_l)
+        column_buttons_more = QVBoxLayout()
+        column_text_fullname = QVBoxLayout()
+        column_text_role = QVBoxLayout()
 
-        header.addLayout(list_data_users)
+        match not users_data:
+            case True:
+                no_users_text = QLabel("В системе пока нет пользователей.\nДобавьте их через кнопки выше и они сразу отобразятся на главном экране.")
+                no_users_text.setStyleSheet("font-size: 16px; color: #FFFFFF; font-style: italic;")
+                no_users_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+                data_all_users_layout.addWidget(no_users_text)
 
-        header.setContentsMargins(0, 80, 0, 0)
-        header.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            case False:
+                for i in users_data:
+                    button_more_user = QPushButton("Подробнее")
+                    button_more_user.clicked.connect(lambda checked, user_id=i[0]: self.open_card(user_id))
+                    button_more_user.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
+                                                   "font-size: 13px; color: #FFFFFF; width: 120px; height: 30px; margin-left: 205px;")
+                    fullname_text = QLabel(f"{i[1]} {i[2]} {i[3]}")
+                    fullname_text.setStyleSheet("font-size: 15px; color: #FFFFFF;")
+
+                    role_text = QLabel(f"{i[4]}-{i[5]}")
+                    role_text.setStyleSheet("font-size: 14px; color: #FFFFFF; margin-left: 80px; font-style: italic;")
+
+                    column_buttons_more.addWidget(button_more_user)
+                    column_text_fullname.addWidget(fullname_text)
+                    column_text_role.addWidget(role_text)
+
+                    user_data_layout = QHBoxLayout()
+                    user_data_layout.addStretch()
+                    user_data_layout.addLayout(column_text_fullname)
+                    user_data_layout.addLayout(column_text_role)
+                    user_data_layout.addLayout(column_buttons_more)
+                    user_data_layout.addStretch()
+                    user_data_layout.setSpacing(15)
+
+                    data_all_users_layout.addLayout(user_data_layout)
+                    data_all_users_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        data_all_users_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        data_all_users_widget = QWidget()
+        data_all_users_widget.setLayout(data_all_users_layout)
+
+        self.scroll_widget_area = QScrollArea()
+        self.scroll_widget_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll_widget_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_widget_area.setWidgetResizable(True)
+        self.scroll_widget_area.verticalScrollBar().setStyleSheet("QScrollBar { width: 0px; }")
+        self.scroll_widget_area.setStyleSheet("QScrollArea { border: 0px solid; }")
+        self.scroll_widget_area.setWidget(data_all_users_widget)
+
+
+        widget_layout = QVBoxLayout()
+        widget_layout.addWidget(title_widget)
+        widget_layout.addLayout(add_buttons_layout)
+        widget_layout.addWidget(search_line_user, alignment=Qt.AlignmentFlag.AlignHCenter)
+        widget_layout.addLayout(radio_buttons_layout)
+        widget_layout.addWidget(self.scroll_widget_area)
+        widget_layout.setContentsMargins(0, 80, 0, 0)
+        widget_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         container = QWidget()
-        container.setLayout(header)
+        container.setLayout(widget_layout)
 
-        self.setMenuWidget(container)
+        self.setCentralWidget(container)
         self.showMaximized()
 
-    def open_card(self, name):
-        def card():
-            dlg = QDialog(self)
-            dlg.setWindowIcon(QtGui.QIcon("assets/error.ico"))
-            dlg.setWindowTitle("Ошибка")
-            dlg.show()
-        return card
+    @staticmethod
+    def open_card(user_id: int):
+        create_student_dialog_window = cardStudent.CardStudent(user_id)
+        create_student_dialog_window.exec()
 
-    def create_student(self):
-        a = createStudent.CreateStudent()
-        a.exec()
+    @staticmethod
+    def create_student():
+        create_student_dialog_window = createStudent.CreateStudent()
+        create_student_dialog_window.exec()
+
+    def change_view(self, b):
+        if b.text() == "Студенты" and b.isChecked():
+            response = service.get_all_users_students()
+            users_data_widget = self.fill_widget_data(response)
+            self.scroll_widget_area.setWidget(users_data_widget)
 
 
+        if b.text() == "Преподаватели" and b.isChecked():
+            response = service.get_all_users_teachers()
+            users_data_widget = self.fill_widget_data(response)
+            self.scroll_widget_area.setWidget(users_data_widget)
+
+
+    def fill_widget_data(self, users_data: List) -> QWidget:
+        data_all_users_layout = QVBoxLayout()
+        data_all_users_layout.setContentsMargins(0, 60, 0, 80)
+
+        column_buttons_more = QVBoxLayout()
+        column_text_fullname = QVBoxLayout()
+        column_text_role = QVBoxLayout()
+
+        match not users_data:
+            case True:
+                no_users_text = QLabel(
+                    "В системе пока нет пользователей.\nДобавьте их через кнопки выше и они сразу отобразятся на главном экране.")
+                no_users_text.setStyleSheet("font-size: 16px; color: #FFFFFF; font-style: italic;")
+                no_users_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+                data_all_users_layout.addWidget(no_users_text)
+
+            case False:
+                for i in users_data:
+                    button_more_user = QPushButton("Подробнее")
+                    button_more_user.clicked.connect(lambda checked, user_id=i[0]: self.open_card(user_id))
+                    button_more_user.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
+                                                   "font-size: 13px; color: #FFFFFF; width: 120px; height: 30px; margin-left: 205px;")
+                    fullname_text = QLabel(f"{i[1]} {i[2]} {i[3]}")
+                    fullname_text.setStyleSheet("font-size: 15px; color: #FFFFFF;")
+
+                    role_text = QLabel(f"{i[4]}-{i[5]}")
+                    role_text.setStyleSheet("font-size: 14px; color: #FFFFFF; margin-left: 80px; font-style: italic;")
+
+                    column_buttons_more.addWidget(button_more_user)
+                    column_text_fullname.addWidget(fullname_text)
+                    column_text_role.addWidget(role_text)
+
+                    user_data_layout = QHBoxLayout()
+                    user_data_layout.addStretch()
+                    user_data_layout.addLayout(column_text_fullname)
+                    user_data_layout.addLayout(column_text_role)
+                    user_data_layout.addLayout(column_buttons_more)
+                    user_data_layout.addStretch()
+                    user_data_layout.setSpacing(15)
+
+                    data_all_users_layout.addLayout(user_data_layout)
+                    data_all_users_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        data_all_users_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        data_all_users_widget = QWidget()
+        data_all_users_widget.setLayout(data_all_users_layout)
+        return data_all_users_widget

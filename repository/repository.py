@@ -6,9 +6,17 @@ conn = sqlite3.connect("repository/dekanat.db")
 cursor = conn.cursor()
 
 
-def get_coursers() -> List:
-    cursor.execute("select title from formEducation")
-    return cursor.fetchall()
+def get_all_users_students() -> (List, bool):
+    try:
+        cursor.execute("select id, lastName, firstName, middleName, directionEducation, numberGroup from students")
+        users_data = cursor.fetchall()
+        return users_data, True
+    except:
+        return [], False
+
+
+def get_all_users_teachers() -> List:
+    pass
 
 
 def _init_repository():
