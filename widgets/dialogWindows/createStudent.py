@@ -1,6 +1,7 @@
 import uuid
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Any
 
+import openpyxl.cell.cell
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QSpinBox, QDateEdit, \
@@ -75,29 +76,29 @@ class CreateStudent(QDialog):
         name_form_layout.addStretch()
         name_form_layout.setContentsMargins(0, 50, 0, 0)
 
+
+        title_form_edu = QLabel("Форма обучения:")
+        title_form_edu.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.choice_form_edu = QComboBox()
         self.choice_form_edu.addItems(["Бакалавриат", "Магистратура", "Специалитет"])
         self.choice_form_edu.setFixedSize(200, 30)
         self.choice_form_edu.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                            "font-size: 14px; padding: 0 0 0 10px;")
-        self.title_form_edu = QLabel("Форма обучения:")
-        self.title_form_edu.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         form_edu_layout = QHBoxLayout()
-        form_edu_layout.addWidget(self.title_form_edu)
+        form_edu_layout.addWidget(title_form_edu)
         form_edu_layout.addWidget(self.choice_form_edu)
 
+
+        title_number_course = QLabel("Курс обучения:")
+        title_number_course.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.number_course = QSpinBox()
         self.number_course.setMaximum(5)
         self.number_course.setMinimum(1)
         self.number_course.setFixedSize(100, 30)
         self.number_course.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                          "font-size: 14px; padding: 0 0 0 10px;")
-        self.title_number_course = QLabel("Курс обучения:")
-        self.title_number_course.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         number_course_layout = QHBoxLayout()
-        number_course_layout.addWidget(self.title_number_course)
+        number_course_layout.addWidget(title_number_course)
         number_course_layout.addWidget(self.number_course)
 
         left_column.addLayout(form_edu_layout)
@@ -111,29 +112,29 @@ class CreateStudent(QDialog):
         get_student_info.addLayout(right_column)
         get_student_info.addStretch()
 
+
+        title_group_name = QLabel("Направление:")
+        title_group_name.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.choice_group_name = QComboBox()
         self.choice_group_name.addItems(["ПМИ", "ФИТ", "ИТХ", "ИТС", "КМБ", "МММ"])
         self.choice_group_name.setFixedSize(200, 30)
         self.choice_group_name.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                              "font-size: 14px; padding: 0 0 0 10px;")
-        self.title_group_name = QLabel("Направление:")
-        self.title_group_name.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         group_name_layout = QHBoxLayout()
-        group_name_layout.addWidget(self.title_group_name)
+        group_name_layout.addWidget(title_group_name)
         group_name_layout.addWidget(self.choice_group_name)
 
+
+        title_number_group = QLabel("Номер группы:")
+        title_number_group.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.number_group = QSpinBox()
         self.number_group.setMaximum(10)
         self.number_group.setMinimum(1)
         self.number_group.setFixedSize(100, 30)
         self.number_group.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                         "font-size: 14px; padding: 0 0 0 10px;")
-        self.title_number_group = QLabel("Номер группы:")
-        self.title_number_group.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         number_group_layout = QHBoxLayout()
-        number_group_layout.addWidget(self.title_number_group)
+        number_group_layout.addWidget(title_number_group)
         number_group_layout.addWidget(self.number_group)
 
         left_column.addLayout(group_name_layout)
@@ -144,24 +145,24 @@ class CreateStudent(QDialog):
         get_student_info.addLayout(left_column)
         get_student_info.addLayout(right_column)
 
+
+        title_birthday = QLabel("Дата рождения:")
+        title_birthday.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.birthday = QDateEdit(calendarPopup=True)
         self.birthday.setFixedSize(200, 30)
         self.birthday.setStyleSheet("background-color: #424242; color: #A2A2A2; border-radius: 5px;"
                                     "font-size: 14px; padding: 0 0 0 10px; font-weight: medium;")
-        title_birthday = QLabel("Дата рождения:")
-        title_birthday.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         birthday_layout = QHBoxLayout()
         birthday_layout.addWidget(title_birthday)
         birthday_layout.addWidget(self.birthday)
 
+
+        title_passport_id = QLabel("Данные паспорта:")
+        title_passport_id.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.passport_id = LineEdit()
         self.passport_id.setFixedSize(130, 30)
         self.passport_id.setStyleSheet("color: #FFFFFF; border: 1px solid #FFFFFF; border-radius: 5px; "
                                        "font-size: 14px; padding: 0 0 0 10px; margin-right: 5px;")
-        title_passport_id = QLabel("Данные паспорта:")
-        title_passport_id.setStyleSheet("font-size: 15px; color: #FFFFFF;")
-
         passport_id_layout = QHBoxLayout()
         passport_id_layout.addWidget(title_passport_id)
         passport_id_layout.addWidget(self.passport_id)
@@ -179,7 +180,6 @@ class CreateStudent(QDialog):
         login_student_title.setStyleSheet("font-size: 13px; color: #FFFFFF;")
         self.login_student = QLineEdit()
         self.login_student.setPlaceholderText("Логин")
-
         self.login_student.setFixedSize(375, 45)
         self.login_student.setText(f"student{str(uuid.uuid4())[:8]}")
         self.login_student.setDisabled(True)
@@ -227,6 +227,7 @@ class CreateStudent(QDialog):
                                          "font-size: 16px; color: #FFFFFF")
         save_data_button = QPushButton("Сохранить")
         save_data_button.setFixedSize(250, 40)
+        save_data_button.clicked.connect(self.save_data)
         save_data_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                        "font-size: 16px; color: #FFFFFF")
         buttons_layout = QHBoxLayout()
@@ -237,7 +238,7 @@ class CreateStudent(QDialog):
         buttons_layout.addStretch()
         buttons_layout.setContentsMargins(0, 35, 0, 0)
 
-        instruction_text = QLabel("Чтобы загрузить студентов из xlsx файла, необходимо скачать шаблон\n и заполнить все"
+        instruction_text = QLabel("Чтобы загрузить студентов из xlsx файла, необходимо скачать шаблон\nи заполнить все"
                                   " поля таблицы, не удаляя заголовок. Затем загрузить шаблон.")
         instruction_text.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         instruction_text.setContentsMargins(0, 20, 0, 0)
@@ -265,19 +266,17 @@ class CreateStudent(QDialog):
                 'Имя':             ['Артем'],
                 'Отчество':        ['Васильевич'],
                 'Форма обучения':  ['Бакалавриат'],
-                'Курс обучения':   ['1'],
+                'Курс обучения':   [2],
                 'Направление':     ['ПМИ'],
-                'Номер группы':    ['6'],
+                'Номер группы':    [6],
                 'Дата рождения':   ['22.01.2004'],
-                'Данные паспорта': ['5171-345657'],
-                'Логин':           ['user01'],
-                'Пароль':          ['user01']
+                'Данные паспорта': ['5171-345657']
             })
             df.to_excel(writer, sheet_name='Sheet1', index=False)
             writer.close()
 
-        except:
-            pass
+        except Exception as err:
+            print(err)
 
     def open_file(self):
         try:
@@ -300,26 +299,44 @@ class CreateStudent(QDialog):
                     ws.cell(row, 7).value,
                     ws.cell(row, 8).value,
                     ws.cell(row, 9).value,
-                    ws.cell(row, 10).value,
-                    ws.cell(row, 11).value
+                    f"student{str(uuid.uuid4())[:8]}",
+                    f"{str(uuid.uuid4())[:3]}{str(uuid.uuid4())[:3]}{str(uuid.uuid4())[:4]}",
                 ]
                 validate_status = self.validate_data_xlsx(student)
                 if not validate_status:
-                    alert = QMessageBox()
-                    alert.setText("Ошибка чтения файла")
-                    alert.setDetailedText("Возможно, вы указали не все данные в таблице. "
-                                          "Скачайте шаблон и попробуйте снова.")
-                    alert.setWindowIcon(QtGui.QIcon("assets/error.ico"))
-                    alert.setWindowTitle("Что-то пошло не так")
-                    alert.setStandardButtons(QMessageBox.StandardButton.Close)
-                    alert.setStyleSheet("color: #141414; font-size: 14px; font-weight: semi-bold;")
-                    alert.exec()
+                    self.alert_message("Ошибка чтения файла", "Возможно, вы неверно указали данные в таблице.")
                     return
-
                 list_students_data.append(student)
-            print(list_students_data)
-        except:
-            pass
+
+            res = service.set_users_student_pull(list_students_data)
+            if not res:
+                self.alert_message("Ошибка чтения файла", "Возможно, вы неверно указали данные в таблице.")
+                return
+
+            self.close()
+
+        except Exception as err:
+            print(err)
+
+    def save_data(self) -> None:
+        user_data = [
+            self.last_n.text().strip(), self.first_n.text().strip(), self.middle_n.text().strip(),
+            self.choice_form_edu.currentText(), self.number_course.text(),
+            self.choice_group_name.currentText(), self.number_group.text(),
+            self.birthday.text(), self.passport_id.text(),
+            self.login_student.text(), self.password_student.text()
+        ]
+
+        if not self.first_n.text().strip() or not self.last_n.text().strip() or not self.middle_n.text().strip() or not self.passport_id.text():
+            self.alert_message("Заполните все поля!", None)
+            return
+
+        res = service.set_user_student(user_data)
+        if not res:
+            self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
+            return
+        self.close()
+
 
     @staticmethod
     def validate_data_xlsx(data: List) -> bool:
@@ -331,4 +348,27 @@ class CreateStudent(QDialog):
                 return False
             elif value is None and index == 2:
                 data[index] = ""
+
+            if index == 7:
+                birthday_data = value.split(".")
+                if len(birthday_data) != 3 or len(birthday_data[0]) != 2 or len(birthday_data[1]) != 2 or len(birthday_data[2]) != 4:
+                    return False
+
+            if index == 8:
+                passportID_data = value.split("-")
+                if len(passportID_data) != 2 or len(passportID_data[0]) != 4 or len(passportID_data[1]) != 6:
+                    return False
         return True
+
+
+    @staticmethod
+    def alert_message(info: str, more_info: Any) -> None:
+        alert = QMessageBox()
+        alert.setText(info)
+        if more_info is not None:
+            alert.setDetailedText(more_info)
+        alert.setWindowIcon(QtGui.QIcon("assets/error.ico"))
+        alert.setWindowTitle("Что-то пошло не так")
+        alert.setStandardButtons(QMessageBox.StandardButton.Close)
+        alert.setStyleSheet("color: #141414; font-size: 14px; font-weight: semi-bold;")
+        alert.exec()

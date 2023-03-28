@@ -10,7 +10,7 @@ create table students (
     directionEducation varchar not null,
     numberGroup integer not null,
 
-    birthday date,
+    birthday varchar,
     passportID varchar not null,
 
     login varchar unique not null,

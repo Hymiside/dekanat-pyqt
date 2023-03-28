@@ -1,10 +1,10 @@
 import uuid
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Any
 
-from PyQt6 import QtGui
-from PyQt6.QtCore import Qt
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QSpinBox, QDateEdit, \
-    QPushButton
+    QPushButton, QMessageBox
 
 from service import service
 
@@ -33,6 +33,10 @@ class CardStudent(QDialog):
     def __init__(self, user_id: int):
         super().__init__()
         self.user_id = user_id
+        self.user_data, err = service.get_user_student(self.user_id)
+        print(self.user_data)
+        if not err:
+            pass  # TODO
 
         self.setWindowIcon(QtGui.QIcon("assets/main.ico"))
         self.setWindowTitle("Деканат.Плюс")
@@ -50,6 +54,7 @@ class CardStudent(QDialog):
 
         self.last_n = QLineEdit()
         self.last_n.setDisabled(True)
+        self.last_n.setText(self.user_data[2])
         self.last_n.setPlaceholderText("Фамилия")
         self.last_n.setFixedSize(250, 45)
         self.last_n.setClearButtonEnabled(True)
@@ -57,6 +62,7 @@ class CardStudent(QDialog):
                                   "padding: 0 0 0 10px; margin-right: 5px;")
         self.first_n = QLineEdit()
         self.first_n.setDisabled(True)
+        self.first_n.setText(self.user_data[1])
         self.first_n.setPlaceholderText("Имя")
         self.first_n.setFixedSize(250, 45)
         self.first_n.setClearButtonEnabled(True)
@@ -64,6 +70,7 @@ class CardStudent(QDialog):
                                    "padding: 0 0 0 10px; margin-right: 5px;")
         self.middle_n = QLineEdit()
         self.middle_n.setDisabled(True)
+        self.middle_n.setText(self.user_data[3])
         self.middle_n.setPlaceholderText("Отчество")
         self.middle_n.setFixedSize(250, 45)
         self.middle_n.setClearButtonEnabled(True)
@@ -82,6 +89,7 @@ class CardStudent(QDialog):
         title_form_edu.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.choice_form_edu = QComboBox()
         self.choice_form_edu.setDisabled(True)
+        self.choice_form_edu.setCurrentText(self.user_data[4])
         self.choice_form_edu.addItems(["Бакалавриат", "Магистратура", "Специалитет"])
         self.choice_form_edu.setFixedSize(200, 30)
         self.choice_form_edu.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
@@ -95,6 +103,7 @@ class CardStudent(QDialog):
         title_number_course.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.number_course = QSpinBox()
         self.number_course.setDisabled(True)
+        self.number_course.setValue(self.user_data[5])
         self.number_course.setMaximum(5)
         self.number_course.setMinimum(1)
         self.number_course.setFixedSize(100, 30)
@@ -120,6 +129,7 @@ class CardStudent(QDialog):
         title_group_name.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.choice_group_name = QComboBox()
         self.choice_group_name.setDisabled(True)
+        self.choice_group_name.setCurrentText(self.user_data[6])
         self.choice_group_name.addItems(["ПМИ", "ФИТ", "ИТХ", "ИТС", "КМБ", "МММ"])
         self.choice_group_name.setFixedSize(200, 30)
         self.choice_group_name.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
@@ -133,6 +143,7 @@ class CardStudent(QDialog):
         title_number_group.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.number_group = QSpinBox()
         self.number_group.setDisabled(True)
+        self.number_group.setValue(self.user_data[7])
         self.number_group.setMaximum(10)
         self.number_group.setMinimum(1)
         self.number_group.setFixedSize(100, 30)
@@ -155,6 +166,8 @@ class CardStudent(QDialog):
         title_birthday.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.birthday = QDateEdit(calendarPopup=True)
         self.birthday.setDisabled(True)
+        date_data = self.user_data[8].split(".")
+        self.birthday.setDate(QDate(int(date_data[2]), int(date_data[1]), int(date_data[0])))
         self.birthday.setFixedSize(200, 30)
         self.birthday.setStyleSheet("background-color: #424242; color: #A2A2A2; border-radius: 5px;"
                                     "font-size: 14px; padding: 0 0 0 10px; font-weight: medium;")
@@ -167,6 +180,7 @@ class CardStudent(QDialog):
         title_passport_id.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.passport_id = LineEdit()
         self.passport_id.setDisabled(True)
+        self.passport_id.setText(self.user_data[9])
         self.passport_id.setFixedSize(130, 30)
         self.passport_id.setStyleSheet("color: #FFFFFF; border: 1px solid #FFFFFF; border-radius: 5px; "
                                        "font-size: 14px; padding: 0 0 0 10px; margin-right: 5px;")
@@ -223,17 +237,18 @@ class CardStudent(QDialog):
 
         self.download_template_button = QPushButton("Редактировать")
         self.download_template_button.setFixedSize(250, 40)
-        self.download_template_button.clicked.connect(self.edit)
+        self.download_template_button.clicked.connect(self.edit_data)
         self.download_template_button.setCheckable(True)
         self.download_template_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                                     "font-size: 16px; color: #FFFFFF")
         attach_file_button = QPushButton("Сохранить изменения")
         attach_file_button.setFixedSize(250, 40)
-        # attach_file_button.clicked.connect(self.open_file)
+        attach_file_button.clicked.connect(self.save_changes)
         attach_file_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                          "font-size: 16px; color: #FFFFFF")
         save_data_button = QPushButton("Удалить")
         save_data_button.setFixedSize(250, 40)
+        save_data_button.clicked.connect(self.delete_user)
         save_data_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                        "font-size: 16px; color: #FFFFFF")
         buttons_layout = QHBoxLayout()
@@ -257,7 +272,7 @@ class CardStudent(QDialog):
 
         self.setLayout(dialog_layout)
 
-    def edit(self, checked: bool):
+    def edit_data(self, checked: bool):
         if checked:
             self.download_template_button.setCheckable(False)
             self.download_template_button.setText("Остановить редактирование")
@@ -285,3 +300,42 @@ class CardStudent(QDialog):
             self.number_group.setDisabled(True)
             self.birthday.setDisabled(True)
             self.passport_id.setDisabled(True)
+
+    def save_changes(self) -> None:
+        user_data = [
+            self.last_n.text().strip(), self.first_n.text().strip(), self.middle_n.text().strip(),
+            self.choice_form_edu.currentText(), self.number_course.text(),
+            self.choice_group_name.currentText(), self.number_group.text(),
+            self.birthday.text(), self.passport_id.text(),
+            self.login_student.text(), self.password_student.text()
+        ]
+
+        if not self.first_n.text().strip() or not self.last_n.text().strip() or not self.middle_n.text().strip() or not self.passport_id.text():
+            self.alert_message("Заполните все поля!", None)
+            return
+
+        res = service.set_user_student(user_data)
+        if not res:
+            self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
+            return
+        self.close()
+
+    def delete_user(self):
+        res = service.delete_user_student(self.user_id)
+        if not res:
+            self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
+            return
+
+        self.close()
+
+    @staticmethod
+    def alert_message(info: str, more_info: Any) -> None:
+        alert = QMessageBox()
+        alert.setText(info)
+        if more_info is not None:
+            alert.setDetailedText(more_info)
+        alert.setWindowIcon(QtGui.QIcon("assets/error.ico"))
+        alert.setWindowTitle("Что-то пошло не так")
+        alert.setStandardButtons(QMessageBox.StandardButton.Close)
+        alert.setStyleSheet("color: #141414; font-size: 14px; font-weight: semi-bold;")
+        alert.exec()

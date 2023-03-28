@@ -1,5 +1,6 @@
-from PyQt6 import QtGui
+from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget, QMainWindow, QDialog, QLabel, QHBoxLayout
 
 from widgets.adminPanel import AdminPanel
@@ -34,6 +35,7 @@ class Auth(QMainWindow):
 
         self._button = QPushButton("Войти")
         self._button.setFixedSize(350, 50)
+        self._button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self._button.clicked.connect(self._check_auth_data)
         self._button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                    "font-size: 16px; color: #FFFFFF;")
