@@ -1,10 +1,11 @@
 from typing import List
 
+import pandas as pd
 from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QLineEdit, QMainWindow, QWidget, QPushButton, QLabel, QHBoxLayout, QVBoxLayout, \
-    QRadioButton, QScrollArea
+    QRadioButton, QScrollArea, QFileDialog
 
 from service import service
 from widgets.dialogWindows import createStudent, cardStudent, createTeacher
@@ -32,6 +33,7 @@ class AdminPanel(QMainWindow):
 
         download_button_student = QPushButton("Скачать данные студентов")
         download_button_student.setFixedSize(240, 40)
+        download_button_student.clicked.connect(self.download_all_students)
         download_button_student.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         download_button_student.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                               "font-size: 16px; color: #FFFFFF")
@@ -59,7 +61,7 @@ class AdminPanel(QMainWindow):
         self.search_line_user.setClearButtonEnabled(True)
         self.search_line_user.setPlaceholderText("Введите фамилию")
         self.search_line_user.setStyleSheet("color: #FFFFFF; border: 1px solid #FFFFFF; border-radius: 5px; "
-                                       "font-size: 14px; padding: 0 0 0 10px;")
+                                            "font-size: 14px; padding: 0 0 0 10px;")
 
 
         self.radio_button_student = QRadioButton("Студенты")
@@ -80,7 +82,7 @@ class AdminPanel(QMainWindow):
         radio_buttons_layout.setContentsMargins(0, 10, 0, 0)
 
 
-        users_data = service.get_all_users_students()
+        users_data = service.get_all_users_students("preview")
         data_all_users_layout = QVBoxLayout()
         data_all_users_layout.setContentsMargins(0, 60, 0, 80)
 
@@ -172,7 +174,7 @@ class AdminPanel(QMainWindow):
 
     def update_view(self):
         if self.radio_button_student.isChecked():
-            response = service.get_all_users_students()
+            response = service.get_all_users_students("preview")
             users_data_widget = self.fill_widget_data(response)
             self.scroll_widget_area.setWidget(users_data_widget)
 
@@ -191,6 +193,47 @@ class AdminPanel(QMainWindow):
 
         elif self.radio_button_teacher.isChecked():
             pass
+
+    def download_all_students(self):
+        users_data = service.get_all_users_students("full")
+        data_for_file = {
+            'Фамилия': [],
+            'Имя': [],
+            'Отчество': [],
+            'Форма обучения': [],
+            'Курс обучения': [],
+            'Направление': [],
+            'Номер группы': [],
+            'Дата рождения': [],
+            'Данные паспорта': [],
+            'Логин': [],
+            'Пароль': []
+        }
+
+        for value in users_data:
+            data_for_file['Фамилия'].append(value[0])
+            data_for_file['Имя'].append(value[1])
+            data_for_file['Отчество'].append(value[2])
+            data_for_file['Форма обучения'].append(value[3])
+            data_for_file['Курс обучения'].append(value[4])
+            data_for_file['Направление'].append(value[5])
+            data_for_file['Номер группы'].append(value[6])
+            data_for_file['Дата рождения'].append(value[7])
+            data_for_file['Данные паспорта'].append(value[8])
+            data_for_file['Логин'].append(value[9])
+            data_for_file['Пароль'].append(value[10])
+
+        try:
+            file_path = QFileDialog.getSaveFileName(self, "Сохранить файл", "all-students.xlsx",
+                                                    "Excel Files (*.xls *.xlsx)")
+            writer = pd.ExcelWriter(file_path[0], engine='xlsxwriter')
+            df = pd.DataFrame(data_for_file)
+            df.to_excel(writer, sheet_name='Sheet1', index=False)
+            writer.close()
+
+        except Exception as err:
+            print(err)
+
 
 
     def fill_widget_data(self, users_data: List) -> QWidget:

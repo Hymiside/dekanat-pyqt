@@ -3,6 +3,7 @@ from typing import List, NamedTuple, Any
 
 from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QSpinBox, QDateEdit, \
     QPushButton, QMessageBox
 
@@ -34,7 +35,6 @@ class CardStudent(QDialog):
         super().__init__()
         self.user_id = user_id
         self.user_data, err = service.get_user_student(self.user_id)
-        print(self.user_data)
         if not err:
             pass  # TODO
 
@@ -236,17 +236,20 @@ class CardStudent(QDialog):
 
 
         self.download_template_button = QPushButton("Редактировать")
+        self.download_template_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.download_template_button.setFixedSize(250, 40)
         self.download_template_button.clicked.connect(self.edit_data)
         self.download_template_button.setCheckable(True)
         self.download_template_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                                     "font-size: 16px; color: #FFFFFF")
         attach_file_button = QPushButton("Сохранить изменения")
+        attach_file_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         attach_file_button.setFixedSize(250, 40)
         attach_file_button.clicked.connect(self.save_changes)
         attach_file_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                          "font-size: 16px; color: #FFFFFF")
         save_data_button = QPushButton("Удалить")
+        save_data_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         save_data_button.setFixedSize(250, 40)
         save_data_button.clicked.connect(self.delete_user)
         save_data_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
@@ -306,15 +309,14 @@ class CardStudent(QDialog):
             self.last_n.text().strip(), self.first_n.text().strip(), self.middle_n.text().strip(),
             self.choice_form_edu.currentText(), self.number_course.text(),
             self.choice_group_name.currentText(), self.number_group.text(),
-            self.birthday.text(), self.passport_id.text(),
-            self.login_student.text(), self.password_student.text()
+            self.birthday.text(), self.passport_id.text(), self.user_id
         ]
 
         if not self.first_n.text().strip() or not self.last_n.text().strip() or not self.middle_n.text().strip() or not self.passport_id.text():
             self.alert_message("Заполните все поля!", None)
             return
 
-        res = service.set_user_student(user_data)
+        res = service.update_user_student(user_data)
         if not res:
             self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
             return

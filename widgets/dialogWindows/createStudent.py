@@ -2,8 +2,9 @@ import uuid
 from typing import List, NamedTuple, Any
 
 import openpyxl.cell.cell
-from PyQt6 import QtGui
+from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QSpinBox, QDateEdit, \
     QPushButton, QFileDialog, QMessageBox
 
@@ -216,16 +217,19 @@ class CreateStudent(QDialog):
 
 
         download_template_button = QPushButton("Скачать шаблон")
+        download_template_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         download_template_button.setFixedSize(250, 40)
         download_template_button.clicked.connect(self.save_file)
         download_template_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                                "font-size: 16px; color: #FFFFFF")
         attach_file_button = QPushButton("Загрузить файл")
+        attach_file_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         attach_file_button.setFixedSize(250, 40)
         attach_file_button.clicked.connect(self.open_file)
         attach_file_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                          "font-size: 16px; color: #FFFFFF")
         save_data_button = QPushButton("Сохранить")
+        save_data_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         save_data_button.setFixedSize(250, 40)
         save_data_button.clicked.connect(self.save_data)
         save_data_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "

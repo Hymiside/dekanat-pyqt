@@ -6,14 +6,26 @@ conn = sqlite3.connect("repository/dekanat.db")
 cursor = conn.cursor()
 
 
-def get_all_users_student() -> (List, bool):
-    try:
-        cursor.execute("select id, lastName, firstName, middleName, directionEducation, numberGroup from students")
-        users_data = cursor.fetchall()
-        return reversed(users_data), True
+def get_all_users_student(flag: str) -> (List, bool):
+    match flag:
+        case "preview":
+            try:
+                cursor.execute("select id, lastName, firstName, middleName, directionEducation, numberGroup from students")
+                users_data = cursor.fetchall()
+                return reversed(users_data), True
 
-    except sqlite3.Error:
-        return [], False
+            except sqlite3.Error:
+                return [], False
+
+        case "full":
+            try:
+                cursor.execute("select lastName, firstName, middleName, formEducation, course, directionEducation, "
+                               "numberGroup, birthday, passportID, login, password from students")
+                users_data = cursor.fetchall()
+                return reversed(users_data), True
+
+            except sqlite3.Error:
+                return [], False
 
 
 def get_all_users_student_filter_search_line(substring: str) -> (List, bool):
@@ -42,7 +54,15 @@ def get_user_student(user_id: int) -> (List, bool):
 
 
 def update_user_student(user_data: List) -> bool:
-    pass
+    try:
+        cursor.execute("update students set lastName = ?, firstName = ?, middleName = ?, formEducation = ?,"
+                       "course = ?, directionEducation = ?, numberGroup = ?, birthday = ?, passportID = ? where id = ?", tuple(user_data))
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(e)
+        return False
+
 
 
 def set_user_student(user_data: List) -> bool:

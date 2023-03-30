@@ -3,10 +3,11 @@ from typing import Dict, List, Tuple
 from repository import repository
 
 
-def get_all_users_students() -> List:
-    users_data, err = repository.get_all_users_student()
+def get_all_users_students(flag: str) -> List:
+    users_data, err = repository.get_all_users_student(flag)
     if not err:
         return []
+
     response = []
     for value in users_data:
         user_data = []
@@ -51,6 +52,11 @@ def get_user_student(user_id: int) -> (List, bool):
 
 def set_user_student(user_data: List) -> bool:
     res = repository.set_user_student(user_data)
+    return res
+
+
+def update_user_student(user_data: List) -> bool:
+    res = repository.update_user_student(user_data)
     return res
 
 
