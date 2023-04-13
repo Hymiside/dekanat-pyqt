@@ -1,7 +1,6 @@
 import uuid
 from typing import List, NamedTuple, Any
 
-import openpyxl.cell.cell
 from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor
@@ -335,7 +334,7 @@ class CreateStudent(QDialog):
             self.alert_message("Заполните все поля!", None)
             return
 
-        res = service.set_user_student(user_data)
+        res = service.set_user_data(user_data, "student")
         if not res:
             self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
             return

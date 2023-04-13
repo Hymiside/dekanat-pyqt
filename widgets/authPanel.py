@@ -1,9 +1,14 @@
+from typing import Any
+
 from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCursor
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget, QMainWindow, QDialog, QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget, QMainWindow, QLabel, QHBoxLayout, QMessageBox
 
+from service import service
 from widgets.adminPanel import AdminPanel
+from widgets.studentPanel import StudentPanel
+from widgets.teacherPanel import TeacherPanel
 
 
 class Auth(QMainWindow):
@@ -66,6 +71,43 @@ class Auth(QMainWindow):
         self.showMaximized()
 
     def _check_auth_data(self):
-        self.admin_panel = AdminPanel()
-        self.admin_panel.show()
-        self.close()
+        login = self.login_input.text().strip()
+        password = self.password_input.text().strip()
+
+        if login == "admin" and password == "admin":
+            self.admin_panel = AdminPanel()
+            self.admin_panel.show()
+            self.close()
+
+        elif login.startswith("student"):
+            res, err = service.check_user(login, password, "student")
+            if err:
+                self.student_panel = StudentPanel(int(res))
+                self.student_panel.show()
+                self.close()
+            else:
+                self.alert_message(res, None)
+
+        elif login.startswith("teacher"):
+            res, err = service.check_user(login, password, "teacher")
+            print(res, err)
+            if err:
+                self.teacher_panel = TeacherPanel(int(res))
+                self.teacher_panel.show()
+                self.close()
+            else:
+                self.alert_message(res, None)
+        else:
+            self.alert_message("Неверный логин или пароль!", None)
+
+    @staticmethod
+    def alert_message(info: str, more_info: Any) -> None:
+        alert = QMessageBox()
+        alert.setText(info)
+        if more_info is not None:
+            alert.setDetailedText(more_info)
+        alert.setWindowIcon(QtGui.QIcon("assets/error.ico"))
+        alert.setWindowTitle("Что-то пошло не так")
+        alert.setStandardButtons(QMessageBox.StandardButton.Close)
+        alert.setStyleSheet("color: #141414; font-size: 14px; font-weight: semi-bold;")
+        alert.exec()

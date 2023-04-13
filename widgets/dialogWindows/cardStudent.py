@@ -1,5 +1,5 @@
 import uuid
-from typing import List, NamedTuple, Any
+from typing import NamedTuple, Any
 
 from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt, QDate
@@ -34,9 +34,10 @@ class CardStudent(QDialog):
     def __init__(self, user_id: int):
         super().__init__()
         self.user_id = user_id
-        self.user_data, err = service.get_user_student(self.user_id)
+        self.user_data, err = service.get_user_full_data(self.user_id, "student")
         if not err:
-            pass  # TODO
+            self.alert_message("Произошла непредвиденная ошибка!", None)
+            exit(1)
 
         self.setWindowIcon(QtGui.QIcon("assets/main.ico"))
         self.setWindowTitle("Деканат.Плюс")
@@ -316,14 +317,14 @@ class CardStudent(QDialog):
             self.alert_message("Заполните все поля!", None)
             return
 
-        res = service.update_user_student(user_data)
+        res = service.update_user(user_data, "student")
         if not res:
             self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
             return
         self.close()
 
     def delete_user(self):
-        res = service.delete_user_student(self.user_id)
+        res = service.delete_user(self.user_id, "student")
         if not res:
             self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
             return

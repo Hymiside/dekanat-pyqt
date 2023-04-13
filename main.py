@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication
-from widgets import auth
+from widgets import authPanel
 
 
 if __name__ == '__main__':
@@ -16,5 +16,5 @@ if __name__ == '__main__':
         }
     """)
 
-    auth_window = auth.Auth()
+    auth_window = authPanel.Auth()
     app.exec()

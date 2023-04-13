@@ -1,16 +1,12 @@
 import uuid
-from typing import List, NamedTuple
+from typing import Any
 
-from PyQt6 import QtGui
+from PyQt6 import QtGui, QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QDateEdit, QPushButton
+from PyQt6.QtGui import QCursor
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QDialog, QDateEdit, QPushButton, QMessageBox
 
 from service import service
-
-
-class StudentData(NamedTuple):
-    user_id: str
-    # TODO
 
 
 class CreateTeacher(QDialog):
@@ -60,7 +56,7 @@ class CreateTeacher(QDialog):
         self.title_form_edu = QLabel("Кафедра:")
         self.title_form_edu.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.choice_form_edu = QComboBox()
-        self.choice_form_edu.addItems(["МОВС", "ВМ", "КМБ", "ИТ", "ВЭМ", "ПМИ", "ФМ"])
+        self.choice_form_edu.addItems(["МОВС", "ПМИ", "ФМ"])
         self.choice_form_edu.setFixedSize(200, 30)
         self.choice_form_edu.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                            "font-size: 14px; padding: 0 0 0 10px;")
@@ -69,10 +65,10 @@ class CreateTeacher(QDialog):
         form_edu_layout.addWidget(self.choice_form_edu)
 
 
-        self.title_number_course = QLabel("Категория:")
+        self.title_number_course = QLabel("Предмет:")
         self.title_number_course.setStyleSheet("font-size: 15px; color: #FFFFFF;")
         self.number_course = QComboBox()
-        self.number_course.addItems(["МОВС", "ВМ", "КМБ", "ИТ", "ВЭМ", "ПМИ", "ФМ"])
+        self.number_course.addItems(["Аналитическая геометрия", "Математический анализ", "АиП", "Дискретная математика"])
         self.number_course.setFixedSize(200, 30)
         self.number_course.setStyleSheet("background-color: #424242; color: #FFFFFF; border-radius: 5px;"
                                          "font-size: 14px; padding: 0 0 0 10px;")
@@ -163,6 +159,8 @@ class CreateTeacher(QDialog):
 
 
         save_data_button = QPushButton("Сохранить")
+        save_data_button.setCursor(QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        save_data_button.clicked.connect(self.save_data)
         save_data_button.setFixedSize(250, 40)
         save_data_button.setStyleSheet("background-color: #424242; border: none; border-radius: 5px; "
                                        "font-size: 16px; color: #FFFFFF")
@@ -182,4 +180,35 @@ class CreateTeacher(QDialog):
         dialog_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.setLayout(dialog_layout)
+
+
+    def save_data(self) -> None:
+        user_data = [
+            self.last_n.text().strip(), self.first_n.text().strip(), self.middle_n.text().strip(),
+            self.choice_form_edu.currentText(), self.number_course.currentText(),
+            self.birthday.text(), self.passport_id.text(),
+            self.login_student.text(), self.password_student.text()
+        ]
+
+        if not self.first_n.text().strip() or not self.last_n.text().strip() or not self.middle_n.text().strip() or not self.passport_id.text():
+            self.alert_message("Заполните все поля!", None)
+            return
+
+        res = service.set_user_data(user_data, "teacher")
+        if not res:
+            self.alert_message("Произошла ошибка, попробуйте еще раз!", None)
+            return
+        self.close()
+
+    @staticmethod
+    def alert_message(info: str, more_info: Any) -> None:
+        alert = QMessageBox()
+        alert.setText(info)
+        if more_info is not None:
+            alert.setDetailedText(more_info)
+        alert.setWindowIcon(QtGui.QIcon("assets/error.ico"))
+        alert.setWindowTitle("Что-то пошло не так")
+        alert.setStandardButtons(QMessageBox.StandardButton.Close)
+        alert.setStyleSheet("color: #141414; font-size: 14px; font-weight: semi-bold;")
+        alert.exec()
 

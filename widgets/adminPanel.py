@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QLineEdit, QMainWindow, QWidget, QPushButton, QLabel
     QRadioButton, QScrollArea, QFileDialog
 
 from service import service
-from widgets.dialogWindows import createStudent, cardStudent, createTeacher
+from widgets.dialogWindows import createStudent, cardStudent, createTeacher, cardTeacher
 
 
 class AdminPanel(QMainWindow):
@@ -160,7 +160,9 @@ class AdminPanel(QMainWindow):
             self.update_view()
 
         elif self.radio_button_teacher.isChecked():
-            print("Преподаватель")
+            card_teacher_dialog_window = cardTeacher.CardTeacher(user_id)
+            card_teacher_dialog_window.exec()
+            self.update_view()
 
     def create_student(self):
         create_student_dialog_window = createStudent.CreateStudent()
@@ -179,7 +181,7 @@ class AdminPanel(QMainWindow):
             self.scroll_widget_area.setWidget(users_data_widget)
 
         elif self.radio_button_teacher.isChecked():
-            response = service.get_all_users_teacher()
+            response = service.get_all_users_teacher("preview")
             users_data_widget = self.fill_widget_data(response)
             self.scroll_widget_area.setWidget(users_data_widget)
 
@@ -187,12 +189,14 @@ class AdminPanel(QMainWindow):
         value = f"%{self.search_line_user.text().strip().title()}%"
 
         if self.radio_button_student.isChecked():
-            response = service.get_all_users_students_filter_search_line(value)
+            response = service.get_all_users_filter_search_line(value, "student")
             users_data_widget = self.fill_widget_data(response)
             self.scroll_widget_area.setWidget(users_data_widget)
 
         elif self.radio_button_teacher.isChecked():
-            pass
+            response = service.get_all_users_filter_search_line(value, "teacher")
+            users_data_widget = self.fill_widget_data(response)
+            self.scroll_widget_area.setWidget(users_data_widget)
 
     def download_all_students(self):
         users_data = service.get_all_users_students("full")
@@ -234,8 +238,6 @@ class AdminPanel(QMainWindow):
         except Exception as err:
             print(err)
 
-
-
     def fill_widget_data(self, users_data: List) -> QWidget:
         data_all_users_layout = QVBoxLayout()
         data_all_users_layout.setContentsMargins(0, 60, 0, 80)
@@ -262,9 +264,12 @@ class AdminPanel(QMainWindow):
                     fullname_text = QLabel(f"{i[1]} {i[2]} {i[3]}")
                     fullname_text.setStyleSheet("font-size: 15px; color: #FFFFFF;")
 
-                    role_text = QLabel(f"{i[4]}-{i[5]}")
-                    role_text.setStyleSheet("font-size: 14px; color: #FFFFFF; margin-left: 80px; font-style: italic;")
+                    if self.radio_button_student.isChecked():
+                        role_text = QLabel(f"{i[4]}-{i[5]}")
+                    elif self.radio_button_teacher.isChecked():
+                        role_text = QLabel(i[4])
 
+                    role_text.setStyleSheet("font-size: 14px; color: #FFFFFF; margin-left: 80px; font-style: italic;")
                     column_buttons_more.addWidget(more_user_button)
                     column_text_fullname.addWidget(fullname_text)
                     column_text_role.addWidget(role_text)
