@@ -118,8 +118,6 @@ def update_user(user_data: List, type_user: str) -> bool:
 
 
 def set_user_data(user_data: List, type_user: str) -> bool:
-
-
     match type_user:
         case "student":
             try:
